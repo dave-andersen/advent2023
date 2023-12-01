@@ -10,8 +10,7 @@ fn input_file(puzzle: &str) -> String {
 }
 
 fn open_buffered(filename: &str) -> BufReader<File> {
-    let file = File::open(filename).unwrap();
-    BufReader::new(file)
+    BufReader::new(File::open(filename).unwrap())
 }
 
 fn a1(part_two: bool) {
@@ -32,7 +31,7 @@ fn a1(part_two: bool) {
         .lines()
         .map_while(Result::ok)
         .map(|line| {
-            let digits: Vec<u32> = ac
+            let digits: Vec<_> = ac
                 .find_overlapping_iter(&line)
                 .map(|pid| values[pid.pattern().as_usize()])
                 .collect();
