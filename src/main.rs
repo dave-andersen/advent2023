@@ -1,3 +1,6 @@
+#![allow(dead_code)]
+
+use std::collections::{HashMap, HashSet};
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
@@ -18,12 +21,23 @@ fn all_lines(filename: &str) -> impl Iterator<Item = String> {
     open_buffered(filename).lines().map_while(Result::ok)
 }
 
-#[allow(dead_code)]
+fn all_nonblank_lines(filename: &str) -> impl Iterator<Item = String> {
+    all_lines(filename).filter(|line| !line.is_empty())
+}
+
 fn read_all_lines(filename: &str) -> Vec<String> {
     all_lines(filename).collect()
 }
 
-#[allow(dead_code)]
+// byte slice to hashset
+fn bs_to_set(bytes: &[u8]) -> HashSet<u8> {
+    let mut hs = HashSet::with_capacity(bytes.len());
+    for &b in bytes {
+        hs.insert(b);
+    }
+    hs
+}
+
 fn a1(part_two: bool) -> u32 {
     let input = input_file("a1.1");
     let mut patterns = vec![
@@ -86,10 +100,26 @@ fn a2() -> (usize, u64) {
     (gametot, powertot)
 }
 
+
+// Just solving to see what utility functions are handy. :-)
+fn a3_2022() -> usize {
+    let input = input_file("2022.a3");
+    all_nonblank_lines(&input).map(|line| {
+        let half = line.len() / 2;
+        let b = line.as_bytes();
+        let chars1 = bs_to_set(&b[0..half]);
+        let chars2 = bs_to_set(&b[half..]);
+        let mut shared = chars1.intersection(&chars2);
+        let shared = *shared.next().unwrap();
+        if shared >= b'a' && shared <= b'z' { (shared - b'a' + 1) as usize } else { (shared - b'A' + 27) as usize}
+    }).sum()
+}
+
 fn main() {
     //a1(false);
     //a1(true);
-    a2();
+    //a2();
+    println!("{}", a3_2022());
 }
 
 #[cfg(test)]
@@ -99,5 +129,9 @@ mod tests {
         assert_eq!(54968, super::a1(false));
         assert_eq!(54094, super::a1(true));
         assert_eq!((2795, 75561), super::a2());
+    }
+
+    fn test_2022() {
+        assert_eq!(super::a3_2022(), 8298);
     }
 }
