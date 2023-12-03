@@ -1,4 +1,7 @@
 #![allow(dead_code)]
+#![allow(unused_imports)]
+#![feature(iter_array_chunks)]
+#![feature(array_chunks)]
 
 use std::collections::{HashMap, HashSet};
 use std::fs::File;
@@ -102,6 +105,10 @@ fn a2() -> (usize, u64) {
 
 
 // Just solving to see what utility functions are handy. :-)
+
+fn a3_2022_priority(x: u8) -> usize {
+    if x >= b'a' && x <= b'z' { (x - b'a' + 1) as usize } else { (x - b'A' + 27) as usize}
+}
 fn a3_2022() -> usize {
     let input = input_file("2022.a3");
     all_nonblank_lines(&input).map(|line| {
@@ -111,15 +118,27 @@ fn a3_2022() -> usize {
         let chars2 = bs_to_set(&b[half..]);
         let mut shared = chars1.intersection(&chars2);
         let shared = *shared.next().unwrap();
-        if shared >= b'a' && shared <= b'z' { (shared - b'a' + 1) as usize } else { (shared - b'A' + 27) as usize}
+        a3_2022_priority(shared)
     }).sum()
 }
+
+fn a3_2022_2() -> usize {
+    let input = input_file("2022.a3");
+    let lines = all_nonblank_lines(&input).collect::<Vec<_>>();
+    lines.array_chunks::<3>().map(|chunk| {
+        let sets = chunk.clone().map(|line| bs_to_set(line.as_bytes()));
+        let shared = &(&(sets[0]) & (&sets[1])) & (&sets[2]);
+        let shared = *shared.iter().next().unwrap();
+        a3_2022_priority(shared)
+    }).sum()
+}
+
 
 fn main() {
     //a1(false);
     //a1(true);
     //a2();
-    println!("{}", a3_2022());
+    println!("{}", a3_2022_2());
 }
 
 #[cfg(test)]
@@ -133,5 +152,6 @@ mod tests {
 
     fn test_2022() {
         assert_eq!(super::a3_2022(), 8298);
+        assert_eq!(super::a3_2022_2(), 2708);
     }
 }
